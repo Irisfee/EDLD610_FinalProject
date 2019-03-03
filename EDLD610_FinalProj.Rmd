@@ -7,16 +7,19 @@ output: html_document
 
 ```{r Setup, include = FALSE}
 #Load libraries
-library(colorblindr)
-library(dplyr)
-library(here)
-library(ggplot2)
-library(gsubfn)
-library(lubridate)
-library(psych)
-library(rio)
-library(snakecase)
-library(tidyverse)
+# library(colorblindr)
+# library(dplyr)
+# library(here)
+# library(ggplot2)
+# library(gsubfn)
+# library(lubridate)
+# library(psych)
+# library(rio)
+# library(snakecase)
+# library(tidyverse)
+pacman::p_load(colorblindr, tidyverse, here, gsubfn, lubridate, psych, snakecase)
+# Yufei: it works well to load the pkgs by library each of them, but my personal preference is to use p_load to wrap up things in a single line :) 
+# Yufei: tidyverse is a super nice collection of a couple of pkgs from Wickham, so after you load tidyverse, you actually don't have to load ggplot2 and dplyr again anymore; there are included in tidyverse:)
 ```
 
 ```{r Import data}
@@ -88,6 +91,8 @@ regions <- data.frame(country = c("Brazil", "Burundi", "China", "Colombia", "Cos
 
 #Join databases
 coffee_join <- left_join(coffee, regions)
+
+# Yufei: the data tidy-up process is so neat and smooth!
 ```
 
 ```{r Visualization 1 - Total reviews by country and region}
@@ -123,11 +128,14 @@ ggplot(coffee_reviews_reg, aes(fct_reorder(region, n), n)) +
        theme_minimal() +
        labs(title = "Total Reviews by Region",
             x = "Region",
-            y = "Reviews")
+            y = "Reviews") +
+  theme(legend.position="none") # Yufei: This plot is super clear for me to understand each color represent each region by looking at the y labels, so I would delete the legend on the right of the plot and save more space for the col plot itself!
+
+# Yufei: I like the color set and the transparency you chose for the plots!
 
 ```
 
-```{r Visualization 2 - Total points by country and region}
+```{r Visualization 2 - Total points by country, fig.height = 4, fig.width = 4}
 #Tidy data
 coffee_countries <- coffee_join %>% 
                        select(country, region, total_points) %>% 
@@ -148,7 +156,13 @@ ggplot(coffee_countries, aes(fct_reorder(country, total_points_m), total_points_
        labs(title = "Total Points by Country",
             x = "Country",
             y = "Total Points")
+# Yufei: the size of the two plots are different, and i think it would be easier to adjust the length by separating them into two code chunk!
+# Yufei: The geom_text you added is very useful for understanding!
+```
 
+
+
+```{r Visualization 2 - Total points by region}
 #Tidy data
 coffee_regions <- coffee_join %>%
                               select(region, total_points) %>% 
@@ -168,13 +182,14 @@ ggplot(coffee_regions, aes(fct_reorder(region, total_points_m), total_points_m))
        theme_minimal() +
        labs(title = "Total Points by Region",
             x = "Region",
-            y = "Total Points")
+            y = "Total Points") +
+  theme(legend.position="none") # Yufei: Same as the previous one; I would delete the legend on the right of the plot and save more space for the col plot itself!
 ```
 
 ```{r Visualization 3 - Mean quality metrics by species}
 #Tidy data
 coffee_species <- coffee %>% 
-                         select(-country, -year) %>% 
+                         # select(-country, -year) %>% Yufei: This line causes an error on my computer "Error in -x : invalid argument to unary operator". However, i think i can get the same results without this line:)
                          group_by(species) %>% 
                          summarise(Aroma = mean(aroma, na.rm = TRUE),
                                    Flavor = mean(flavor, na.rm = TRUE),
@@ -200,6 +215,8 @@ ggplot(coffee_species, aes(fct_reorder(metric, score), score)) +
        labs(title = "Comparison of quality metric scores by coffee bean species",
             x = "Quality Metrics",
             y = "Score")
+# Yufei: for this version i was wondering if adding error bars would make it better to present the uncertainty?
+
 
 ######Other possible versions#####
 
@@ -215,6 +232,8 @@ ggplot(coffee_species, aes(fct_reorder(metric, score), score)) +
        labs(title = "Comparison of quality metric scores by coffee bean species",
             x = "Quality Metrics",
             y = "Score")
+
+# Yufei: the line plot looks super cool and i am trying to figure out how to use it for my plots!
 
 #Tidy data
 coffee_species_diff <- coffee_species %>% 
